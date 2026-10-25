@@ -1,0 +1,374 @@
+/* ==========================================================================
+   SmartCafe PWA - Comprehensive Responsive Design System
+   Optimized for: Phones (320px-480px), Phablets, iPads & Tablets (768px-1024px),
+   Laptops (1025px-1440px), and Large Desktop Displays (1441px+)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Universal Mobile & Touch Optimizations
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+img, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Prevent auto-zooming on input focus in iOS Safari */
+@media screen and (max-width: 768px) {
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    input[type="search"],
+    input[type="email"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Touch-friendly Minimum Tap Target */
+@media (pointer: coarse) {
+    button, 
+    .btn, 
+    .btn-qty,
+    .btn-remove-item,
+    .nav-links a,
+    .category-pill,
+    .action-link {
+        min-height: 40px;
+    }
+}
+
+/* Universal Responsive Table Wrapper */
+.table-responsive,
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.cart-scroll-container {
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Horizontal Scrollbar Styling for touch */
+.table-responsive::-webkit-scrollbar,
+.category-pills::-webkit-scrollbar,
+.category-tabs::-webkit-scrollbar {
+    height: 5px;
+    width: 5px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+.category-pills::-webkit-scrollbar-thumb,
+.category-tabs::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.2);
+    border-radius: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   2. IPAD & TABLET OPTIMIZATIONS (Max Width: 1024px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1024px) {
+    /* General Container Adjustments */
+    .dashboard-container,
+    .order-container,
+    .kds-container,
+    .container {
+        width: 95% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    /* Order Management Layout on Tablet */
+    .order-container {
+        flex-direction: column !important;
+        gap: 20px !important;
+    }
+
+    .form-section,
+    .cart-section {
+        width: 100% !important;
+        min-width: 0 !important;
+        flex: none !important;
+    }
+
+    /* KDS Grid on Tablet */
+    .kds-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+        gap: 16px !important;
+    }
+
+    /* Dashboard Modules on Tablet */
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 18px !important;
+    }
+
+    /* Stat Cards Row */
+    .stats-group,
+    .stats-grid,
+    .metrics-row {
+        flex-wrap: wrap !important;
+        gap: 12px !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   3. TABLET PORTRAIT & PHABLETS (Max Width: 768px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 768px) {
+    body {
+        padding: 16px 8px !important;
+    }
+
+    /* Headers on Mobile / Tablet Portrait */
+    .header,
+    .top-nav,
+    .kds-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+        padding: 18px 16px !important;
+        border-radius: 18px !important;
+    }
+
+    .header-actions,
+    .nav-links {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        justify-content: stretch !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .header-actions > *,
+    .nav-links > * {
+        flex: 1 1 auto !important;
+        text-align: center !important;
+        justify-content: center !important;
+    }
+
+    .brand-title {
+        font-size: 22px !important;
+        justify-content: center !important;
+    }
+
+    .brand-subtitle {
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .brand-logo {
+        height: 52px !important;
+    }
+
+    /* Hero Banner on Dashboard */
+    .hero-banner {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 20px 16px !important;
+        border-radius: 18px !important;
+        gap: 18px !important;
+    }
+
+    .hero-banner .hero-text h2 {
+        font-size: 20px !important;
+    }
+
+    .quick-order-btn {
+        width: 100% !important;
+        justify-content: center !important;
+        margin-top: 10px !important;
+    }
+
+    .stats-group {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        width: 100% !important;
+        gap: 10px !important;
+    }
+
+    .hero-stat-card {
+        min-width: 0 !important;
+        padding: 14px 10px !important;
+        border-radius: 14px !important;
+    }
+
+    .hero-stat-card .stat-value {
+        font-size: 24px !important;
+    }
+
+    /* Dashboard Modules on Mobile */
+    .grid-container {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+
+    .card {
+        padding: 20px 18px !important;
+        border-radius: 18px !important;
+    }
+
+    /* Category Navigation Scrolling (Menu & POS) */
+    .category-pills,
+    .category-tabs {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding-bottom: 8px !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .category-pill,
+    .category-tab-btn {
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        padding: 8px 16px !important;
+        font-size: 13px !important;
+    }
+
+    /* Form Rows / Filter Bars */
+    .input-row,
+    .filter-row,
+    .search-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    .input-group,
+    .form-group {
+        width: 100% !important;
+    }
+
+    /* Modals on Mobile & Tablet */
+    .receipt-modal-content,
+    .modal-content,
+    .modal-card {
+        width: 95% !important;
+        max-width: 95vw !important;
+        padding: 24px 18px !important;
+        border-radius: 20px !important;
+        margin: 12px auto !important;
+    }
+
+    /* Outside Printer Box (Safe fallback) */
+    .printer-side-container {
+        position: static !important;
+        width: 100% !important;
+        margin-top: 16px !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   4. SMARTPHONES & SMALL DEVICES (Max Width: 480px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 480px) {
+    body {
+        padding: 10px 4px !important;
+    }
+
+    .header-title h1,
+    .page-title,
+    .kds-header h1 {
+        font-size: 18px !important;
+    }
+
+    .form-section,
+    .cart-section,
+    .category-section,
+    .transactions-card {
+        padding: 16px 12px !important;
+        border-radius: 16px !important;
+    }
+
+    /* POS Item Grid on Phone (2 clean columns) */
+    .menu-grid,
+    .items-grid,
+    .pos-items-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    .item-card,
+    .menu-item-btn {
+        padding: 10px 8px !important;
+        border-radius: 12px !important;
+        font-size: 12px !important;
+    }
+
+    /* Cart Quantity Buttons for Easy Tapping */
+    .btn-qty {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 15px !important;
+    }
+
+    .btn-remove-item {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 14px !important;
+    }
+
+    /* Checkout & Action Buttons */
+    .btn-checkout,
+    .btn-confirm-order,
+    .btn-add {
+        padding: 14px !important;
+        font-size: 15px !important;
+    }
+
+    /* Stat values on compact phones */
+    .stats-group {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Receipt preview width */
+    #receiptModal .receipt-paper {
+        width: 270px !important;
+        font-size: 11px !important;
+        padding: 16px 12px !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   5. EDIT MENU ITEM & FORMS CONTAINER
+   -------------------------------------------------------------------------- */
+.edit-container {
+    width: 92% !important;
+    max-width: 580px !important;
+    margin: 30px auto !important;
+    padding: 24px !important;
+    border-radius: 20px !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08) !important;
+}
+
+@media screen and (max-width: 600px) {
+    .edit-container {
+        width: 95% !important;
+        margin: 16px auto !important;
+        padding: 18px 14px !important;
+    }
+}

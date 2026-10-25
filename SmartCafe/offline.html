@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartCafe | Offline Mode</title>
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b1120;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-amber: #f59e0b;
+            --accent-emerald: #10b981;
+            --btn-bg: #3b82f6;
+            --btn-hover: #2563eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 20%, #1e293b 0%, #0f172a 50%, #020617 100%);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow */
+        .ambient-glow {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            filter: blur(40px);
+            pointer-events: none;
+        }
+
+        .offline-card {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-w: 480px;
+            max-width: 480px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-wrap {
+            margin-bottom: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logo-img {
+            width: 76px;
+            height: 76px;
+            border-radius: 20px;
+            object-fit: cover;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .offline-badge {
+            position: absolute;
+            bottom: -6px;
+            right: -6px;
+            background: #ef4444;
+            color: #ffffff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border: 2px solid #0f172a;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            animation: pulseWarning 2s infinite;
+        }
+
+        @keyframes pulseWarning {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 1.75rem;
+        }
+
+        .status-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.75rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            transition: background 0.3s;
+        }
+
+        .status-dot.online {
+            background: var(--accent-emerald);
+            box-shadow: 0 0 10px var(--accent-emerald);
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.14);
+            transform: translateY(-1px);
+        }
+
+        .nav-links {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.6rem;
+            margin-top: 1rem;
+        }
+
+        .nav-chip {
+            padding: 0.65rem 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .nav-chip:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tip-box {
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: #64748b;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-glow"></div>
+
+    <div class="offline-card">
+        <div class="logo-wrap">
+            <img src="icons/icon-192x192.png" alt="SmartCafe Logo" class="logo-img" onerror="this.src='logo.png'">
+            <div class="offline-badge" title="No Internet Connection">
+                <i class="fa-solid fa-wifi-slash"></i>
+            </div>
+        </div>
+
+        <h1>You're Offline</h1>
+        <p class="subtitle">SmartCafe couldn't reach the server. Don't worry, your cached interface is ready and we will automatically reconnect once your signal returns.</p>
+
+        <div class="status-box">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Checking connection...</span>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" id="retryBtn" onclick="checkConnection(true)">
+                <i class="fa-solid fa-arrow-rotate-right" id="retryIcon"></i>
+                <span>Retry Connection</span>
+            </button>
+            <button class="btn btn-secondary" onclick="window.history.back()">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Go Back</span>
+            </button>
+        </div>
+
+        <div class="nav-links">
+            <a href="dashboard.php" class="nav-chip">
+                <i class="fa-solid fa-chart-pie"></i> Dashboard
+            </a>
+            <a href="order_management.php" class="nav-chip">
+                <i class="fa-solid fa-cash-register"></i> POS Orders
+            </a>
+            <a href="kds.php" class="nav-chip">
+                <i class="fa-solid fa-utensils"></i> Kitchen KDS
+            </a>
+            <a href="index.php" class="nav-chip">
+                <i class="fa-solid fa-right-to-bracket"></i> Login
+            </a>
+        </div>
+
+        <p class="tip-box">
+            <i class="fa-solid fa-lightbulb"></i> Tip: SmartCafe works offline for saved screens. When you go back online, changes sync automatically.
+        </p>
+    </div>
+
+    <script>
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const retryIcon = document.getElementById('retryIcon');
+
+        function updateStatusUI(online) {
+            if (online) {
+                statusDot.classList.add('online');
+                statusText.textContent = "Online! Reconnecting...";
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                statusDot.classList.remove('online');
+                statusText.textContent = "Disconnected — Offline Mode Active";
+            }
+        }
+
+        async function checkConnection(manual = false) {
+            if (manual) {
+                retryIcon.classList.add('fa-spin');
+                statusText.textContent = "Testing connection...";
+            }
+
+            try {
+                // Fetch a lightweight asset with cache-busting
+                const res = await fetch('manifest.json?t=' + Date.now(), { method: 'HEAD', cache: 'no-store' });
+                if (res.ok) {
+                    updateStatusUI(true);
+                    return;
+                }
+            } catch (err) {
+                // Still offline
+            }
+
+            updateStatusUI(false);
+            if (manual) {
+                setTimeout(() => {
+                    retryIcon.classList.remove('fa-spin');
+                }, 600);
+            }
+        }
+
+        window.addEventListener('online', () => {
+            updateStatusUI(true);
+        });
+
+        window.addEventListener('offline', () => {
+            updateStatusUI(false);
+        });
+
+        // Initial check
+        if (navigator.onLine) {
+            checkConnection();
+        } else {
+            updateStatusUI(false);
+        }
+    </script>
+</body>
+</html>
