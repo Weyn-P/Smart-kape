@@ -1226,10 +1226,6 @@ $current_next_q_tag = '#' . str_pad($current_next_q, 3, '0', STR_PAD_LEFT);
             <a href="kds.php" class="btn-back" style="background: linear-gradient(135deg, #0284c7, #0369a1); border-color: rgba(255,255,255,0.3); color: #fff;">
                 <i class="fa-solid fa-kitchen-set"></i> Kitchen Display
             </a>
-            <!-- Next Queue Counter Badge -->
-            <div class="pos-next-q-pill" id="pos-next-q-badge" title="Daily queue resets each day">
-                <i class="fa-solid fa-ticket"></i> Next Queue: <span id="pos-next-q-text"><?php echo $current_next_q_tag; ?></span>
-            </div>
         </div>
         <h1 class="page-title"><i class="fa-solid fa-cash-register"></i> Order Management</h1>
     </div>
@@ -1867,11 +1863,6 @@ function processOrderWithAnimation() {
                 orderNumInput.dataset.userEdited = 'false';
             }
             
-            // Update Next Queue tag in POS header
-            if (data.next_queue_tag) {
-                const nextQText = document.getElementById('pos-next-q-text');
-                if (nextQText) nextQText.textContent = data.next_queue_tag;
-            }
 
             triggerSidePrintingAnimation(data);
             addNewTransactionToTable(data);
@@ -1988,10 +1979,6 @@ setInterval(async () => {
 
         const nextRes = await fetch('api_get_orders.php?type=next_queue');
         const nextData = await nextRes.json();
-        if (nextData.next_queue_tag) {
-            const nextTagEl = document.getElementById('pos-next-q-text');
-            if (nextTagEl) nextTagEl.textContent = nextData.next_queue_tag;
-        }
         if (nextData.next_queue_number) {
             const orderNumEl = document.getElementById('pos_order_number');
             if (orderNumEl && document.activeElement !== orderNumEl && orderNumEl.dataset.userEdited !== 'true') {

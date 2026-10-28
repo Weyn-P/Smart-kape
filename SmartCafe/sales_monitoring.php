@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once 'config.php';
 
 // Security: Check if user is logged in
@@ -17,7 +19,7 @@ if ($_SESSION['role'] === 'Staff') {
 // -------------------------------------------------------------
 // AJAX VOID HANDLER (Processes in background without page refresh)
 // -------------------------------------------------------------
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'void_order') {
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['action']) && $_POST['action'] === 'void_order') {
     header('Content-Type: application/json');
     
     if (!in_array($_SESSION['role'], ['Admin', 'Manager'])) {
@@ -278,6 +280,178 @@ $sales_history = mysqli_query($conn, "SELECT * FROM orders ORDER BY order_date D
         .btn-logout:hover {
             background: var(--dark-btn-hover);
             transform: translateY(-2px);
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+        }
+
+        .btn-pdf:hover {
+            background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(2, 132, 199, 0.45);
+        }
+
+        /* Modal for PDF Pull Out */
+        .pdf-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .pdf-modal-overlay.active {
+            display: flex;
+        }
+
+        .pdf-modal-box {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 30px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.35);
+            animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .pdf-modal-title {
+            font-size: 19px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pdf-modal-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+
+        .pdf-period-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .pdf-period-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 18px;
+            border-radius: 14px;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+        }
+
+        .pdf-period-option:hover {
+            border-color: #94a3b8;
+            background: #ffffff;
+        }
+
+        .pdf-period-option.selected {
+            border-color: #0284c7;
+            background: #f0f9ff;
+        }
+
+        .pdf-period-option input[type="radio"] {
+            margin-right: 12px;
+            accent-color: #0284c7;
+            width: 17px;
+            height: 17px;
+        }
+
+        .pdf-period-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pdf-period-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .pdf-modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-modal-cancel {
+            padding: 11px 20px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            background: #f1f5f9;
+            color: #475569;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-modal-cancel:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-modal-pullout {
+            padding: 11px 24px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+        }
+
+        .btn-modal-pullout:hover {
+            background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+            transform: translateY(-1px);
         }
 
         /* Stats Grid */
@@ -663,6 +837,9 @@ $sales_history = mysqli_query($conn, "SELECT * FROM orders ORDER BY order_date D
             <p>Track revenue, performance summaries, and detailed transaction logs</p>
         </div>
         <div class="nav-links">
+            <button type="button" class="btn-pdf" onclick="openPdfModal()">
+                <i class="fa-solid fa-file-pdf"></i> Pull Out Sales Record (PDF)
+            </button>
             <a href="dashboard.php" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
             <a href="logout.php" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
         </div>
@@ -1056,7 +1233,103 @@ $sales_history = mysqli_query($conn, "SELECT * FROM orders ORDER BY order_date D
             console.error(error);
         });
     }
+
+    // Modal for BesKape Sales Record PDF Pull-Out
+    function openPdfModal() {
+        document.getElementById('pdfPulloutModal').classList.add('active');
+    }
+
+    function closePdfModal() {
+        document.getElementById('pdfPulloutModal').classList.remove('active');
+    }
+
+    function selectPeriodOption(el) {
+        document.querySelectorAll('.pdf-period-option').forEach(function(opt) {
+            opt.classList.remove('selected');
+        });
+        el.classList.add('selected');
+        var radio = el.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+    }
+
+    function generatePdfRecord() {
+        var selected = document.querySelector('input[name="pdf_period"]:checked');
+        var period = selected ? selected.value : 'today';
+        window.open('export_sales_pdf.php?period=' + encodeURIComponent(period), '_blank');
+        closePdfModal();
+    }
 </script>
+
+<!-- Modal for BesKape Formal Sales Record PDF Pull-Out -->
+<div id="pdfPulloutModal" class="pdf-modal-overlay">
+    <div class="pdf-modal-box">
+        <div class="pdf-modal-title">
+            <i class="fa-solid fa-file-invoice-dollar" style="color: #0284c7;"></i> Pull Out Formal Sales Audit Report (PDF)
+        </div>
+        <div class="pdf-modal-subtitle">
+            Generate an official, formal BesKape sales audit report complete with corporate letterhead, revenue statements, VAT calculations, product mix velocity, and executive certification sign-offs.
+        </div>
+
+        <div class="pdf-period-grid">
+            <label class="pdf-period-option selected" onclick="selectPeriodOption(this)">
+                <div style="display: flex; align-items: center;">
+                    <input type="radio" name="pdf_period" value="today" checked>
+                    <div>
+                        <div class="pdf-period-label"><i class="fa-solid fa-calendar-day"></i> Today's Formal Audit Record</div>
+                        <div class="pdf-period-desc"><?php echo date('F d, Y'); ?> • Current operating day sales</div>
+                    </div>
+                </div>
+            </label>
+
+            <label class="pdf-period-option" onclick="selectPeriodOption(this)">
+                <div style="display: flex; align-items: center;">
+                    <input type="radio" name="pdf_period" value="yesterday">
+                    <div>
+                        <div class="pdf-period-label"><i class="fa-solid fa-clock-rotate-left"></i> Yesterday's Audit Record</div>
+                        <div class="pdf-period-desc"><?php echo date('F d, Y', strtotime('-1 day')); ?> • Prior business closing</div>
+                    </div>
+                </div>
+            </label>
+
+            <label class="pdf-period-option" onclick="selectPeriodOption(this)">
+                <div style="display: flex; align-items: center;">
+                    <input type="radio" name="pdf_period" value="week">
+                    <div>
+                        <div class="pdf-period-label"><i class="fa-solid fa-calendar-week"></i> Last 7 Days Financial Summary</div>
+                        <div class="pdf-period-desc"><?php echo date('M d', strtotime('-6 days')); ?> to <?php echo date('M d, Y'); ?></div>
+                    </div>
+                </div>
+            </label>
+
+            <label class="pdf-period-option" onclick="selectPeriodOption(this)">
+                <div style="display: flex; align-items: center;">
+                    <input type="radio" name="pdf_period" value="month">
+                    <div>
+                        <div class="pdf-period-label"><i class="fa-solid fa-calendar"></i> Month-to-Date Financial Statement</div>
+                        <div class="pdf-period-desc"><?php echo date('F Y'); ?> • Full calendar month audit</div>
+                    </div>
+                </div>
+            </label>
+
+            <label class="pdf-period-option" onclick="selectPeriodOption(this)">
+                <div style="display: flex; align-items: center;">
+                    <input type="radio" name="pdf_period" value="all">
+                    <div>
+                        <div class="pdf-period-label"><i class="fa-solid fa-database"></i> Comprehensive Historical Ledger</div>
+                        <div class="pdf-period-desc">Complete all-time transaction records</div>
+                    </div>
+                </div>
+            </label>
+        </div>
+
+        <div class="pdf-modal-actions">
+            <button type="button" class="btn-modal-cancel" onclick="closePdfModal()">Cancel</button>
+            <button type="button" class="btn-modal-pullout" onclick="generatePdfRecord()">
+                <i class="fa-solid fa-file-invoice"></i> Generate Formal PDF
+            </button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

@@ -44,13 +44,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['update_status
     exit();
 }
 
-// 4. Query Today's Next Queue Number
-$next_q_res = mysqli_query($conn, "SELECT COALESCE(MAX(queue_number), 0) + 1 AS next_queue FROM orders WHERE DATE(order_date) = CURDATE()");
-$next_queue_num = 1;
-if ($next_q_res && $nq_row = mysqli_fetch_assoc($next_q_res)) {
-    $next_queue_num = (int)$nq_row['next_queue'];
-}
-$next_queue_tag = '#' . str_pad($next_queue_num, 3, '0', STR_PAD_LEFT);
 
 // 5. Query Active Kitchen Orders
 $orders_query = "
@@ -330,13 +323,23 @@ if (!$orders_result) {
         }
 
         .btn-ready {
-            background: #10b981;
+            background: #0284c7;
             color: #ffffff;
         }
 
         .btn-ready:hover {
+            background: #0369a1;
+            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.35);
+        }
+
+        .btn-completed {
             background: #059669;
-            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+            color: #ffffff;
+        }
+
+        .btn-completed:hover {
+            background: #047857;
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.35);
         }
 
         /* Pill Badges */
@@ -363,7 +366,7 @@ if (!$orders_result) {
             border-color: rgba(186, 230, 253, 0.9);
         }
 
-        .badge-ready, .badge-ready-for-pickup, .badge-ready_for_pickup {
+        .badge-ready, .badge-ready-for-pickup, .badge-ready_for_pickup, .badge-picked-up, .badge-picked_up, .badge-pickedup {
             color: #047857; 
             background: rgba(209, 250, 229, 0.8);
             border-color: rgba(167, 243, 208, 0.9);
@@ -429,13 +432,14 @@ if (!$orders_result) {
         <div>
             <div class="header-brand">
                 <h1>Kitchen Display System</h1>
-                <span class="role-badge">KDS</span>
-                <span class="role-badge badge-queue-next">Next: <?php echo $next_queue_tag; ?></span>
             </div>
             <div class="user-info">Logged in as: <strong><?php echo htmlspecialchars($display_name); ?></strong></div>
         </div>
         <div class="nav-links">
             <a href="order_management.php">Order Management</a>
+            <a href="status_board.php" target="_blank" style="background: rgba(16, 185, 129, 0.15); color: #047857; border-color: rgba(16, 185, 129, 0.35); font-weight: 700;">
+                <i class="fa-solid fa-tv" style="margin-right: 6px;"></i> Status Board
+            </a>
             <a href="dashboard.php">Dashboard</a>
             <a href="logout.php" class="btn-logout">Logout</a>
         </div>
@@ -498,12 +502,18 @@ if (!$orders_result) {
                             <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
                             <input type="hidden" name="update_status" value="1">
 
-                            <?php if (strtolower(trim($raw_status)) === 'preparing' || strtolower(trim($raw_status)) === 'ready' || strtolower(trim($raw_status)) === 'ready for pickup'): ?>
+                            <?php 
+                                $st_check = strtolower(trim($raw_status));
+                                if (in_array($st_check, ['ready', 'ready for pickup', 'ready_for_pickup', 'picked up', 'picked_up', 'pickedup'], true)): 
+                            ?>
                                 <input type="hidden" name="new_status" value="Completed">
-                                <button type="submit" class="btn-status btn-ready">Mark Completed</button>
+                                <button type="submit" class="btn-status btn-completed"><i class="fa-solid fa-check-double"></i> Mark as Completed</button>
+                            <?php elseif ($st_check === 'preparing'): ?>
+                                <input type="hidden" name="new_status" value="Ready for Pickup">
+                                <button type="submit" class="btn-status btn-ready"><i class="fa-solid fa-bell"></i> Ready for Pickup</button>
                             <?php else: ?>
                                 <input type="hidden" name="new_status" value="Preparing">
-                                <button type="submit" class="btn-status btn-start">Start Preparing</button>
+                                <button type="submit" class="btn-status btn-start"><i class="fa-solid fa-play"></i> Start Preparing</button>
                             <?php endif; ?>
                         </form>
                     </div>
@@ -546,17 +556,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 const badge = card.querySelector('.badge');
                 const newStatus = data.new_status;
 
-                if (newStatus.toLowerCase() === 'preparing') {
+                const stLower = newStatus.toLowerCase().trim();
+
+                if (stLower === 'preparing') {
                     // Update badge text and style dynamically
                     badge.textContent = 'Preparing';
                     badge.className = 'badge badge-preparing';
+                    card.className = 'ticket-card preparing';
+                    
+                    // Toggle form inputs to prepare for "Ready for Pickup" action
+                    form.querySelector('input[name="new_status"]').value = 'Ready for Pickup';
+                    const btn = form.querySelector('button');
+                    btn.className = 'btn-status btn-ready';
+                    btn.innerHTML = '<i class="fa-solid fa-bell"></i> Ready for Pickup';
+                } else if (stLower === 'ready' || stLower === 'ready for pickup' || stLower === 'ready_for_pickup' || stLower === 'picked up' || stLower === 'picked_up' || stLower === 'pickedup') {
+                    // Update badge text and style dynamically
+                    badge.textContent = 'Ready for Pickup';
+                    badge.className = 'badge badge-ready';
+                    card.className = 'ticket-card ready-for-pickup';
                     
                     // Toggle form inputs to prepare for "Completed" action
                     form.querySelector('input[name="new_status"]').value = 'Completed';
                     const btn = form.querySelector('button');
-                    btn.className = 'btn-status btn-ready';
-                    btn.textContent = 'Mark Completed';
-                } else if (newStatus.toLowerCase() === 'completed') {
+                    btn.className = 'btn-status btn-completed';
+                    btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Mark as Completed';
+                } else if (stLower === 'completed') {
                     // Smoothly animate out completed card without reloading
                     card.style.opacity = '0';
                     card.style.transform = 'scale(0.9)';
@@ -641,14 +665,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             let actionsHtml = '';
-            if (rawStatus.trim().toLowerCase() === 'preparing' || rawStatus.trim().toLowerCase() === 'ready' || rawStatus.trim().toLowerCase() === 'ready for pickup') {
+            const stTrim = rawStatus.trim().toLowerCase();
+            if (stTrim === 'ready' || stTrim === 'ready for pickup' || stTrim === 'ready_for_pickup' || stTrim === 'picked up' || stTrim === 'picked_up' || stTrim === 'pickedup') {
                 actionsHtml = `
                     <input type="hidden" name="new_status" value="Completed">
-                    <button type="submit" class="btn-status btn-ready">Mark Completed</button>`;
+                    <button type="submit" class="btn-status btn-completed"><i class="fa-solid fa-check-double"></i> Mark as Completed</button>`;
+            } else if (stTrim === 'preparing') {
+                actionsHtml = `
+                    <input type="hidden" name="new_status" value="Ready for Pickup">
+                    <button type="submit" class="btn-status btn-ready"><i class="fa-solid fa-bell"></i> Ready for Pickup</button>`;
             } else {
                 actionsHtml = `
                     <input type="hidden" name="new_status" value="Preparing">
-                    <button type="submit" class="btn-status btn-start">Start Preparing</button>`;
+                    <button type="submit" class="btn-status btn-start"><i class="fa-solid fa-play"></i> Start Preparing</button>`;
             }
 
             let custDetails = '';

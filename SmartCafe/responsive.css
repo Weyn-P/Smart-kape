@@ -7,7 +7,9 @@
 /* --------------------------------------------------------------------------
    1. Universal Mobile & Touch Optimizations
    -------------------------------------------------------------------------- */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
@@ -21,13 +23,17 @@ body {
     width: 100%;
 }
 
-img, video, canvas, svg {
+img,
+video,
+canvas,
+svg {
     max-width: 100%;
     height: auto;
 }
 
 /* Prevent auto-zooming on input focus in iOS Safari */
 @media screen and (max-width: 768px) {
+
     input[type="text"],
     input[type="password"],
     input[type="number"],
@@ -41,8 +47,9 @@ img, video, canvas, svg {
 
 /* Touch-friendly Minimum Tap Target */
 @media (pointer: coarse) {
-    button, 
-    .btn, 
+
+    button,
+    .btn,
     .btn-qty,
     .btn-remove-item,
     .nav-links a,
@@ -86,6 +93,7 @@ img, video, canvas, svg {
    2. IPAD & TABLET OPTIMIZATIONS (Max Width: 1024px)
    -------------------------------------------------------------------------- */
 @media screen and (max-width: 1024px) {
+
     /* General Container Adjustments */
     .dashboard-container,
     .order-container,
@@ -161,8 +169,8 @@ img, video, canvas, svg {
         width: 100% !important;
     }
 
-    .header-actions > *,
-    .nav-links > * {
+    .header-actions>*,
+    .nav-links>* {
         flex: 1 1 auto !important;
         text-align: center !important;
         justify-content: center !important;
@@ -370,5 +378,106 @@ img, video, canvas, svg {
         width: 95% !important;
         margin: 16px auto !important;
         padding: 18px 14px !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   6. LIVE ORDER STATUS BOARD & TV DISPLAY SYSTEM
+   -------------------------------------------------------------------------- */
+.board-container {
+    width: 96% !important;
+    max-width: 1760px !important;
+}
+
+/* TV & Large High-Res Wall Displays (1600px+) */
+@media screen and (min-width: 1600px) {
+    .card-ready .queue-tag {
+        font-size: 54px !important;
+    }
+
+    .card-preparing .queue-tag {
+        font-size: 44px !important;
+    }
+
+    .orders-list {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+        gap: 22px !important;
+    }
+
+    .col-title-text h2 {
+        font-size: 26px !important;
+    }
+}
+
+/* Tablets & iPads (768px - 1024px) */
+@media screen and (max-width: 1024px) {
+    .board-container {
+        width: 98% !important;
+        padding: 10px 0 20px 0 !important;
+    }
+
+    .board-header {
+        padding: 14px 18px !important;
+        gap: 12px !important;
+    }
+
+    .brand-text h1 {
+        font-size: 19px !important;
+    }
+
+    .clock-time {
+        font-size: 18px !important;
+    }
+
+    .orders-list {
+        padding: 16px !important;
+        gap: 14px !important;
+    }
+}
+
+/* Mobile Phones (under 768px) */
+@media screen and (max-width: 768px) {
+    .board-header {
+        border-radius: 16px !important;
+        padding: 14px 12px !important;
+    }
+
+    .header-actions {
+        width: 100% !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    .search-container {
+        flex: 1 1 100% !important;
+    }
+
+    Matcha Caramel .search-input {
+        width: 100% !important;
+    }
+
+    .search-input:focus {
+        width: 100% !important;
+    }
+
+    .status-column {
+        border-radius: 18px !important;
+    }
+
+    .col-header {
+        padding: 16px !important;
+    }
+
+    .orders-list {
+        padding: 14px !important;
+        grid-template-columns: 1fr !important;
+        max-height: 480px !important;
+    }
+
+    .board-footer {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding: 12px 16px !important;
     }
 }

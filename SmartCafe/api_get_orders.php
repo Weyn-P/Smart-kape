@@ -1,13 +1,15 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once 'config.php';
 
 header('Content-Type: application/json');
 
 $type = $_GET['type'] ?? 'kds';
 
-// Allow public access for KDS, queue boards, and next queue counter
-$public_types = ['kds', 'queue', 'next_queue'];
+// Allow public access for KDS, queue boards, status board, and next queue counter
+$public_types = ['kds', 'queue', 'next_queue', 'status_board'];
 if (!in_array($type, $public_types, true) && !isset($_SESSION['username'])) {
     echo json_encode(['error' => 'Unauthorized']);
     exit();
@@ -18,6 +20,23 @@ $status_col = 'order_status';
 $col_check = mysqli_query($conn, "SHOW COLUMNS FROM orders LIKE 'order_status'");
 if (!$col_check || mysqli_num_rows($col_check) === 0) {
     $status_col = 'status';
+}
+
+// Handle Status Updates (Staff Only)
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_status') {
+    if (!isset($_SESSION['username'])) {
+        echo json_encode(['error' => 'Unauthorized']);
+        exit();
+    }
+    $order_id = intval($_POST['order_id'] ?? 0);
+    $new_status = mysqli_real_escape_string($conn, trim($_POST['new_status'] ?? ''));
+    if ($order_id > 0 && !empty($new_status)) {
+        $update = mysqli_query($conn, "UPDATE orders SET `$status_col` = '$new_status' WHERE id = '$order_id'");
+        echo json_encode(['success' => (bool)$update, 'order_id' => $order_id, 'new_status' => $new_status]);
+        exit();
+    }
+    echo json_encode(['error' => 'Invalid parameters']);
+    exit();
 }
 
 // Helper to format queue tag (#001, #002)
@@ -40,8 +59,8 @@ if ($type === 'next_queue') {
     exit();
 }
 
-// 2. KDS and Queue Board Orders API
-if ($type === 'kds' || $type === 'queue') {
+// 2. KDS, Queue, and Status Board Orders API
+if ($type === 'kds' || $type === 'queue' || $type === 'status_board') {
     // Auto-detect item name column
     $item_name_col = 'menu_item_name';
     $item_check = mysqli_query($conn, "SHOW COLUMNS FROM order_items LIKE 'menu_item_name'");
@@ -56,10 +75,10 @@ if ($type === 'kds' || $type === 'queue') {
             total_amount, 
             `$status_col` AS order_status 
         FROM orders 
-        WHERE LOWER(TRIM(`$status_col`)) IN ('in process', 'in-process', 'in_process', 'preparing', 'pending', 'ready', 'ready for pickup', 'ready_for_pickup') 
+        WHERE LOWER(TRIM(`$status_col`)) IN ('in process', 'in-process', 'in_process', 'preparing', 'pending', 'ready', 'ready for pickup', 'ready_for_pickup', 'picked up', 'picked_up', 'pickedup') 
         ORDER BY 
             CASE 
-                WHEN LOWER(TRIM(`$status_col`)) IN ('ready', 'ready for pickup', 'ready_for_pickup') THEN 0
+                WHEN LOWER(TRIM(`$status_col`)) IN ('ready', 'ready for pickup', 'ready_for_pickup', 'picked up', 'picked_up', 'pickedup') THEN 0
                 WHEN LOWER(TRIM(`$status_col`)) = 'preparing' THEN 1
                 ELSE 2
             END ASC,
@@ -67,6 +86,8 @@ if ($type === 'kds' || $type === 'queue') {
 
     $orders_result = mysqli_query($conn, $orders_query);
     $active_orders = [];
+    $preparing_orders = [];
+    $ready_orders = [];
 
     if ($orders_result) {
         while ($order = mysqli_fetch_assoc($orders_result)) {
@@ -85,10 +106,57 @@ if ($type === 'kds' || $type === 'queue') {
             }
             $order['items'] = $items;
             $active_orders[] = $order;
+
+            $status_clean = strtolower(trim($order['order_status']));
+            if (in_array($status_clean, ['ready', 'ready for pickup', 'ready_for_pickup', 'picked up', 'picked_up', 'pickedup'], true)) {
+                $ready_orders[] = $order;
+            } elseif ($status_clean === 'preparing') {
+                $preparing_orders[] = $order;
+            }
         }
     }
-    
-    echo json_encode(['orders' => $active_orders]);
+
+    // Recently completed orders for ticker (today only)
+    $completed_orders = [];
+    $comp_query = "
+        SELECT id, queue_number, customer_name, order_type, order_date, 
+            COALESCE(staff_username, 'admin') AS staff_username, 
+            total_amount, 
+            `$status_col` AS order_status 
+        FROM orders 
+        WHERE LOWER(TRIM(`$status_col`)) = 'completed' AND DATE(order_date) = CURDATE() 
+        ORDER BY order_date DESC 
+        LIMIT 10";
+    $comp_res = mysqli_query($conn, $comp_query);
+    if ($comp_res) {
+        while ($cord = mysqli_fetch_assoc($comp_res)) {
+            $cord['queue_tag'] = formatApiQueueTag($cord['queue_number'] ?? $cord['id']);
+            $cord['customer_name'] = !empty($cord['customer_name']) ? $cord['customer_name'] : 'Guest';
+            $cord['order_type'] = !empty($cord['order_type']) ? $cord['order_type'] : 'Dine In';
+            $completed_orders[] = $cord;
+        }
+    }
+
+    // Total completed today count
+    $comp_count_res = mysqli_query($conn, "SELECT COUNT(*) AS total FROM orders WHERE LOWER(TRIM(`$status_col`)) = 'completed' AND DATE(order_date) = CURDATE()");
+    $comp_count = 0;
+    if ($comp_count_res && $c_row = mysqli_fetch_assoc($comp_count_res)) {
+        $comp_count = (int)$c_row['total'];
+    }
+
+    echo json_encode([
+        'orders' => $active_orders,
+        'preparing' => $preparing_orders,
+        'ready' => $ready_orders,
+        'completed' => $completed_orders,
+        'counts' => [
+            'preparing' => count($preparing_orders),
+            'ready' => count($ready_orders),
+            'completed' => $comp_count,
+            'total_active' => count($active_orders)
+        ],
+        'server_time' => date('Y-m-d H:i:s')
+    ]);
     exit();
 }
 

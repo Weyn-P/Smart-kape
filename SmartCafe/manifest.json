@@ -1,8 +1,8 @@
 {
-  "id": "smartcafe-pos-app",
-  "name": "SmartCafe - Cafe POS & Management",
-  "short_name": "SmartCafe",
-  "description": "Modern Point of Sale and Cafe Management Progressive Web App",
+  "id": "beskape-pos-app",
+  "name": "BesKape - Cafe POS & Management",
+  "short_name": "BesKape",
+  "description": "Modern Point of Sale and Cafe Management Progressive Web App for BesKape",
   "start_url": "./index.php",
   "scope": "./",
   "display": "standalone",
@@ -41,7 +41,7 @@
       "src": "icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-maskable-192x192.png",
@@ -52,19 +52,26 @@
     {
       "src": "icons/icon-384x384.png",
       "sizes": "384x384",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-maskable-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "960x960",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "shortcuts": [

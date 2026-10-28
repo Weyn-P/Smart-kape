@@ -1,5 +1,5 @@
-/* SmartCafe Progressive Web App Service Worker */
-const CACHE_NAME = 'smartcafe-pwa-v4';
+/* BesKape Progressive Web App Service Worker */
+const CACHE_NAME = 'beskape-pwa-v6';
 const OFFLINE_URL = 'offline.html';
 
 const PRECACHE_ASSETS = [
@@ -62,8 +62,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 1.5. Skip caching for API endpoints to ensure real-time data
-  if (url.pathname.includes('api_get_orders.php')) {
+  // 1.5. Skip caching for API endpoints and client script to ensure real-time updates
+  if (url.pathname.includes('api_get_orders.php') || url.pathname.includes('pwa.js')) {
+    event.respondWith(fetch(request).catch(() => caches.match(request)));
     return;
   }
 
